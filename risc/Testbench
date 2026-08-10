@@ -1,0 +1,88 @@
+testbench/rsib_processor_tb.v
+```verilog
+`timescale 1ns/1ps
+
+module rsib_processor_tb;
+
+reg clk;
+reg reset;
+
+wire [7:0] pc;
+wire [15:0] instruction;
+wire halted;
+
+rsib_processor DUT (
+    .clk(clk),
+    .reset(reset),
+    .pc_out(pc),
+    .instruction_out(instruction),
+    .halted(halted)
+);
+
+// 10 ns clock
+always #5 clk = ~clk;
+
+initial begin
+
+    $dumpfile("waveform.vcd");
+    $dumpvars(0, rsib_processor_tb);
+
+    clk = 1'b0;
+    reset = 1'b1;
+
+    // Reset processor
+    #10;
+    reset = 1'b0;
+
+    $display("================================");
+    $display("      RSIB PROCESSOR TEST");
+    $display("================================");
+
+    // Instruction 0
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // Instruction 1
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // Instruction 2
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // Instruction 3
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // Instruction 4
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // Instruction 5
+    #10;
+    $display("PC = %d | Instruction = %h",
+             pc, instruction);
+
+    // HALT
+    #10;
+
+    if (halted)
+        $display("HALT TEST : PASS");
+    else
+        $display("HALT TEST : FAIL");
+
+    $display("--------------------------------");
+    $display("RSIB PROCESSOR SIMULATION DONE");
+    $display("--------------------------------");
+
+    $finish;
+
+end
+
+endmodule
+```

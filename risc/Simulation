@@ -1,0 +1,7 @@
+iverilog -o rsib_sim \
+rtl/alu.v \
+rtl/register_file.v \
+rtl/control_unit.v \
+rtl/program_memory.v \
+rtl/rsib_processor.v \
+testbench/rsib_processor_tb.v

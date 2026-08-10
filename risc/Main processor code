@@ -1,0 +1,104 @@
+```verilog
+module rsib_processor (
+    input clk,
+    input reset,
+
+    output [7:0] pc_out,
+    output [15:0] instruction_out,
+    output halted
+);
+
+reg [7:0] pc;
+reg processor_halted;
+
+wire [15:0] instruction;
+
+wire [3:0] opcode;
+wire [2:0] rd;
+wire [2:0] rs1;
+wire [2:0] rs2;
+
+wire [7:0] data_a;
+wire [7:0] data_b;
+
+wire [7:0] alu_result;
+wire alu_zero;
+
+wire alu_enable;
+wire reg_write;
+wire halt_signal;
+
+// Program memory
+program_memory PMEM (
+    .address(pc),
+    .instruction(instruction)
+);
+
+// Instruction fields
+assign opcode = instruction[15:12];
+assign rd     = instruction[11:9];
+assign rs1    = instruction[8:6];
+assign rs2    = instruction[5:3];
+
+// Control unit
+control_unit CU (
+    .opcode(opcode),
+    .alu_enable(alu_enable),
+    .reg_write(reg_write),
+    .halt(halt_signal)
+);
+
+// Register file
+register_file RF (
+    .clk(clk),
+    .reset(reset),
+
+    .write_enable(reg_write && !processor_halted),
+    .write_address(rd),
+    .write_data(alu_result),
+
+    .read_address_1(rs1),
+    .read_address_2(rs2),
+
+    .read_data_1(data_a),
+    .read_data_2(data_b)
+);
+
+// ALU
+alu ALU (
+    .a(data_a),
+    .b(data_b),
+    .opcode(opcode),
+
+    .result(alu_result),
+    .zero(alu_zero)
+);
+
+// Processor state
+always @(posedge clk or posedge reset) begin
+
+    if (reset) begin
+        pc <= 8'h00;
+        processor_halted <= 1'b0;
+    end
+
+    else if (!processor_halted) begin
+
+        if (halt_signal) begin
+            processor_halted <= 1'b1;
+        end
+
+        else begin
+            pc <= pc + 8'h01;
+        end
+
+    end
+
+end
+
+assign pc_out = pc;
+assign instruction_out = instruction;
+assign halted = processor_halted;
+
+endmodule
+```
